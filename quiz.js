@@ -40,6 +40,13 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  // Initialize App Check with reCAPTCHA v3
+  const appCheck = firebase.appCheck();
+  appCheck.activate(
+    '6LddteoqAAAAANmIz644Cu4xtUbnGQqwlW7U34fN', // Replace with your Site Key from reCAPTCHA setup
+    true // Set to true to enforce App Check immediately
+  );
+
   async function loadHighScores() {
     try {
       const snapshot = await db.collection('highscores').orderBy('score', 'desc').orderBy('time', 'asc').limit(100).get();
@@ -305,7 +312,7 @@
     var $highScoresButton = $('<button>')
       .attr('class', 'high-scores-button')
       .text("Ennätykset")
-      .click(showHighScores); // Attach click handler here
+      .click(showHighScores);
   
     var $indicators = $('<ol>')
       .attr('class', 'progress-circles')
@@ -365,7 +372,6 @@
       })
       .appendTo($start_button);
 
-    // Add "Ennätykset" button to the title slide
     $highScoresButton.clone(true).appendTo($start_button);
 
     var $titleTimer = $timer.clone().appendTo($title_slide);
