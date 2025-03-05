@@ -531,3 +531,100 @@ body.dark-mode .high-score-row:hover {
     padding: 0 10px;
   }
 }
+
+/* Leaderboard Container */
+.leaderboard-container {
+  margin-top: 20px;
+  text-align: center;
+  padding: 10px;
+}
+
+.leaderboard-table {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--background-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .leaderboard-table {
+  background-color: #1A202C; /* Darker shade for dark mode */
+}
+
+/* Table Header */
+.leaderboard-table thead th {
+  background: linear-gradient(to bottom, var(--accent-color), var(--button-hover));
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 10px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Table Cells */
+.leaderboard-table td, .leaderboard-table th {
+  padding: 12px 10px;
+  text-align: center;
+  border: none;
+}
+
+.leaderboard-table tbody tr {
+  background-color: rgba(255, 255, 255, 0.9);
+  transition: background-color 0.2s ease;
+}
+
+body.dark-mode .leaderboard-table tbody tr {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Alternating Rows and Hover Effects */
+.leaderboard-table tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+body.dark-mode .leaderboard-table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.leaderboard-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .leaderboard-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Rank Column with Icons and Colors */
+.leaderboard-table .rank {
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.leaderboard-table tr.gold td {
+  color: #FFD700; /* Gold for entire row */
+}
+
+.leaderboard-table tr.silver td {
+  color: #C0C0C0; /* Silver for entire row */
+}
+
+.leaderboard-table tr.bronze td {
+  color: #CD7F32; /* Bronze for entire row */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .leaderboard-table {
+    max-width: 100%;
+  }
+
+  .leaderboard-table th, .leaderboard-table td {
+    padding: 8px 5px;
+    font-size: 14px;
+  }
+}
