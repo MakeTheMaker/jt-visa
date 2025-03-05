@@ -1,0 +1,7 @@
+{
+  "name": "jtmerkit-quiz",
+  "version": "1.0.0",
+  "dependencies": {
+    "firebase": "^8.10.1"
+  }
+}
