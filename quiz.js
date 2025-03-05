@@ -43,13 +43,17 @@
   // Initialize App Check with reCAPTCHA v3
   const appCheck = firebase.appCheck();
   appCheck.activate(
-    '6LddteoqAAAAANmIz644Cu4xtUbnGQqwlW7U34fN', // Replace with your Site Key from reCAPTCHA setup
-    true // Set to true to enforce App Check immediately
+    'YOUR_RECAPTCHA_V3_SITE_KEY', // Replace with your reCAPTCHA v3 Site Key
+    true // Enforce App Check immediately
   );
 
-  async function loadHighScores() {
+  async function loadHighScores(limit = 100) {
     try {
-      const snapshot = await db.collection('highscores').orderBy('score', 'desc').orderBy('time', 'asc').limit(100).get();
+      const snapshot = await db.collection('highscores')
+        .orderBy('score', 'desc')
+        .orderBy('time', 'asc')
+        .limit(limit)
+        .get();
       const scores = snapshot.docs.map(doc => doc.data());
       console.log("Loaded high scores:", scores);
       return scores;
@@ -83,6 +87,55 @@
     } catch (error) {
       console.error("Virhe tallennettaessa ennätystä:", error);
     }
+  }
+
+  async function displayLeaderboard() {
+    const topScores = await loadHighScores(10); // Fetch top 10 scores
+    let leaderboardHtml = `
+      <h2>Top 10</h2>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Sija</th>
+            <th>Nimi</th>
+            <th>Pisteet</th>
+            <th>Aika</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    if (topScores.length > 0) {
+      topScores.forEach((entry, index) => {
+        const rank = index + 1;
+        const name = entry.nickname || 'N/A';
+        const score = entry.score !== undefined ? entry.score : 'N/A';
+        const time = entry.time !== undefined ? `${Math.min(Math.floor(entry.time), 999)}s` : 'N/A';
+        let rankClass = '';
+        let rankDisplay = rank + '.';
+        if (rank === 1) {
+          rankClass = 'gold';
+          rankDisplay = '🥇';
+        } else if (rank === 2) {
+          rankClass = 'silver';
+          rankDisplay = '🥈';
+        } else if (rank === 3) {
+          rankClass = 'bronze';
+          rankDisplay = '🥉';
+        }
+        leaderboardHtml += `
+          <tr class="${rankClass}">
+            <td class="rank">${rankDisplay}</td>
+            <td>${name}</td>
+            <td>${score}</td>
+            <td>${time}</td>
+          </tr>
+        `;
+      });
+    } else {
+      leaderboardHtml += '<tr><td colspan="4">Ei vielä ennätyksiä.</td></tr>';
+    }
+    leaderboardHtml += '</tbody></table>';
+    return leaderboardHtml;
   }
 
   async function showHighScores() {
@@ -137,10 +190,11 @@
   async function showScoreAndCheckHighScore(state) {
     const highScores = await loadHighScores();
     const playerScore = { score: state.correct, time: state.timeElapsed };
-    const isHighScore = highScores.length < 100 || highScores.some(entry => 
+    
+    const isHighScore = state.correct > 0 && (highScores.length < 100 || highScores.some(entry => 
       playerScore.score > entry.score || 
       (playerScore.score === entry.score && playerScore.time < entry.time)
-    );
+    ));
 
     const minutes = Math.floor(state.timeElapsed / 60);
     const seconds = state.timeElapsed % 60;
@@ -233,23 +287,40 @@
         });
       });
     } else {
-      Swal.fire({
-        title: "Peli päättyi!",
-        text: scoreText,
-        confirmButtonText: "OK",
-        confirmButtonColor: $('body').hasClass('dark-mode') ? "#2B6B66" : "#2C7A7B",
-        showCancelButton: true,
-        cancelButtonText: "Yritä uudelleen",
-        cancelButtonColor: $('body').hasClass('dark-mode') ? "#4A8A84" : "#1D5A5B",
-        background: $('body').hasClass('dark-mode') 
-          ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
-          : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-        color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
-      }).then((result) => {
-        if (!result.isConfirmed) {
-          location.reload();
-        }
-      });
+      if (state.correct === 0) {
+        Swal.fire({
+          title: "Peli päättyi!",
+          text: scoreText,
+          confirmButtonText: "Yritä uudelleen?",
+          confirmButtonColor: $('body').hasClass('dark-mode') ? "#2B6B66" : "#2C7A7B",
+          background: $('body').hasClass('dark-mode') 
+            ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
+            : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
+          color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            location.reload();
+          }
+        });
+      } else {
+        Swal.fire({
+          title: "Peli päättyi!",
+          text: scoreText,
+          confirmButtonText: "OK",
+          confirmButtonColor: $('body').hasClass('dark-mode') ? "#2B6B66" : "#2C7A7B",
+          showCancelButton: true,
+          cancelButtonText: "Yritä uudelleen",
+          cancelButtonColor: $('body').hasClass('dark-mode') ? "#4A8A84" : "#1D5A5B",
+          background: $('body').hasClass('dark-mode') 
+            ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
+            : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
+          color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+        }).then((result) => {
+          if (!result.isConfirmed) {
+            location.reload();
+          }
+        });
+      }
     }
   }
   
@@ -374,10 +445,13 @@
 
     $highScoresButton.clone(true).appendTo($start_button);
 
-    var $titleTimer = $timer.clone().appendTo($title_slide);
-    allTimers.push($titleTimer);
-    var $titleProgress = $progressContainer.clone().appendTo($title_slide);
-    allProgressTexts.push($titleProgress.find('span'));
+    // Add leaderboard container
+    var $leaderboardContainer = $('<div>')
+      .attr('class', 'leaderboard-container')
+      .appendTo($title_slide);
+    displayLeaderboard().then(html => {
+      $leaderboardContainer.html(html);
+    });
   
     $.each(questions, function(question_index, question) {
       $('<li>')
