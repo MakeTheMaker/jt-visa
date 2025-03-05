@@ -43,7 +43,7 @@
   // Initialize App Check with reCAPTCHA v3
   const appCheck = firebase.appCheck();
   appCheck.activate(
-    'YOUR_RECAPTCHA_V3_SITE_KEY', // Replace with your reCAPTCHA v3 Site Key
+    '6LddteoqAAAAANmIz644Cu4xtUbnGQqwlW7U34fN', // Replace with your reCAPTCHA v3 Site Key
     true // Enforce App Check immediately
   );
 
@@ -183,7 +183,7 @@
       background: $('body').hasClass('dark-mode') 
         ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
         : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-      color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+      color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
     });
   }
 
@@ -237,7 +237,7 @@
         background: $('body').hasClass('dark-mode') 
           ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
           : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-        color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748',
+        color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748',
         customClass: {
           popup: 'new-high-score-popup'
         }
@@ -256,7 +256,7 @@
             background: $('body').hasClass('dark-mode') 
               ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
               : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-            color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+            color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
           });
           return;
         }
@@ -269,7 +269,7 @@
             background: $('body').hasClass('dark-mode') 
               ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
               : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-            color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+            color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
           }).then(() => {
             location.reload();
           });
@@ -282,7 +282,7 @@
             background: $('body').hasClass('dark-mode') 
               ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
               : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-            color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+            color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
           });
         });
       });
@@ -296,7 +296,7 @@
           background: $('body').hasClass('dark-mode') 
             ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
             : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-          color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+          color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
         }).then((result) => {
           if (result.isConfirmed) {
             location.reload();
@@ -314,7 +314,7 @@
           background: $('body').hasClass('dark-mode') 
             ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
             : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-          color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+          color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
         }).then((result) => {
           if (!result.isConfirmed) {
             location.reload();
@@ -584,7 +584,7 @@
             background: $('body').hasClass('dark-mode') 
               ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
               : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
-            color: $('body').hasClass('dark-mode') ? '#D1D5DB' : '#2D3748'
+            color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
           }).then((result) => {
             if (result.isConfirmed) {
               next();
