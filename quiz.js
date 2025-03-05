@@ -140,7 +140,6 @@
     const scoreText = `Pisteesi: ${state.correct} / ${state.total}<br>Aika: ${minutes}m ${seconds}s`;
 
     if (isHighScore) {
-      // Calculate player's rank
       const sortedScores = [...highScores, playerScore].sort((a, b) => {
         if (b.score === a.score) return a.time - b.time;
         return b.score - a.score;
@@ -274,7 +273,6 @@
       .attr("role", "listbox")
       .appendTo($quiz);
   
-    // Shared top controls (Lopeta and Theme Toggle)
     var $endButton = $('<button>')
       .attr('class', 'end-button')
       .text("Lopeta");
@@ -289,7 +287,6 @@
         $('.dark-mode-toggle').text(isDarkMode ? 'Vaihda vaaleaan tilaan' : 'Vaihda pimeään tilaan');
       });
   
-    // Shared progress text
     var $progressContainer = $('<div>')
       .attr('class', 'quiz-progress text-center');
   
@@ -297,19 +294,19 @@
       .text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`)
       .appendTo($progressContainer);
   
-    // Shared timer - Create a single timer element but we'll update all instances
     var $timer = $('<div>')
       .attr('class', 'quiz-timer')
       .text("Aika: 0s");
-
+  
     var timerInterval;
-    var allTimers = []; // Array to hold references to all timer elements
+    var allTimers = [];
+    var allProgressTexts = [];
   
     var $highScoresButton = $('<button>')
       .attr('class', 'high-scores-button')
-      .text("Ennätykset");
+      .text("Ennätykset")
+      .click(showHighScores); // Attach click handler here
   
-    // Shared progress circles for all slides (not cloned)
     var $indicators = $('<ol>')
       .attr('class', 'progress-circles')
       .appendTo($container);
@@ -318,7 +315,6 @@
       .attr("class", "item active")
       .appendTo($slides);
   
-    // Add top controls to the title slide
     var $topControlsTitle = $('<div>')
       .attr('class', 'top-controls')
       .appendTo($title_slide);
@@ -331,7 +327,7 @@
       var unansweredCount = state.total - state.answered;
       state.wrong += unansweredCount;
       state.answered = state.total;
-      $progressText.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`);
+      allProgressTexts.forEach($pt => $pt.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`));
       $indicators.find('li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
       $quiz.carousel(state.total + 1);
       $indicators.removeClass('show');
@@ -357,23 +353,25 @@
       .click(function() {
         $quiz.carousel('next');
         $indicators.addClass('show');
-        if (!timerInterval) { // Start timer only if not already running
+        if (!timerInterval) {
           timerInterval = setInterval(function() {
             state.timeElapsed++;
             var minutes = Math.floor(state.timeElapsed / 60);
             var seconds = state.timeElapsed % 60;
-            // Update all timer elements
             allTimers.forEach($t => $t.text(`Aika: ${minutes}m ${seconds}s`));
           }, 1000);
         }
-        // Hide the header
         $('.quiz-header').addClass('hidden');
       })
       .appendTo($start_button);
 
-    // Add timer to title slide and store reference
+    // Add "Ennätykset" button to the title slide
+    $highScoresButton.clone(true).appendTo($start_button);
+
     var $titleTimer = $timer.clone().appendTo($title_slide);
     allTimers.push($titleTimer);
+    var $titleProgress = $progressContainer.clone().appendTo($title_slide);
+    allProgressTexts.push($titleProgress.find('span'));
   
     $.each(questions, function(question_index, question) {
       $('<li>')
@@ -387,7 +385,6 @@
         .attr("class", "item")
         .appendTo($slides);
   
-      // Add top controls to each slide
       var $topControls = $('<div>')
         .attr('class', 'top-controls')
         .appendTo($item);
@@ -396,12 +393,11 @@
         .attr('class', 'top-button-row')
         .appendTo($topControls);
   
-      // Clone the shared elements for each slide
       $endButton.clone().appendTo($topButtonRow).click(function() {
         var unansweredCount = state.total - state.answered;
         state.wrong += unansweredCount;
         state.answered = state.total;
-        $progressText.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`);
+        allProgressTexts.forEach($pt => $pt.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`));
         $indicators.find('li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
         $quiz.carousel(state.total + 1);
         $indicators.removeClass('show');
@@ -412,8 +408,8 @@
   
       $darkModeToggle.clone(true).addClass('dark-mode-toggle').appendTo($topButtonRow);
   
-      // Add progress container to each slide
-      $progressContainer.clone().appendTo($item);
+      var $questionProgress = $progressContainer.clone().appendTo($item);
+      allProgressTexts.push($questionProgress.find('span'));
   
       if (question.image) {
         var $img_div = $('<div>')
@@ -429,7 +425,6 @@
         .attr("class", "quiz-answers")
         .appendTo($item);
   
-      // Add bottom controls to each slide
       var $bottomControls = $('<div>')
         .attr('class', 'bottom-controls')
         .appendTo($item);
@@ -438,11 +433,9 @@
         .attr('class', 'button-row')
         .appendTo($bottomControls);
   
-      // Clone the shared elements for each slide and attach event listeners
-      // Position: High Scores on the left, Timer on the right
-      $highScoresButton.clone().appendTo($buttonRow).click(showHighScores);
+      $highScoresButton.clone(true).appendTo($buttonRow);
       var $questionTimer = $timer.clone().appendTo($buttonRow);
-      allTimers.push($questionTimer); // Add each question slide's timer to the array
+      allTimers.push($questionTimer);
   
       var correctAnswer = question.answers[0];
       var otherAnswers = allAnswers.filter(a => a !== correctAnswer);
@@ -487,7 +480,7 @@
               .removeClass('unanswered')
               .addClass(correct ? 'correct' : 'wrong');
   
-            $progressText.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`);
+            allProgressTexts.forEach($pt => $pt.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`));
   
             $quiz.carousel('next');
   
