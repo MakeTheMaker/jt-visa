@@ -316,9 +316,7 @@
             : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
           color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
         }).then((result) => {
-          if (result.isConfirmed) {
-            // Do nothing, just close
-          } else {
+          if (!result.isConfirmed) {
             location.reload();
           }
         });
@@ -329,7 +327,8 @@
   function render(quiz_opts) {
     var questions = quiz_opts.questions;
     shuffle(questions);
-
+  
+    var allAnswers = Array.from(new Set(questions.map(q => q.answers[0])));
     var state = {
       correct: 0,
       wrong: 0,
@@ -337,82 +336,84 @@
       answered: 0,
       timeElapsed: 0
     };
-
+  
     var $quiz = $(this)
       .attr("class", "carousel slide")
       .attr("data-ride", "carousel");
-
+  
     var name = $quiz.attr("id") || "quiz_" + (++quiz_count);
     $quiz.attr('id', name);
-
+  
     var $container = $quiz.parent();
     
     var $slides = $("<div>")
       .attr("class", "carousel-inner")
       .attr("role", "listbox")
       .appendTo($quiz);
-
+  
     var $endButton = $('<button>')
       .attr('class', 'end-button')
       .text("Lopeta");
-
+  
     var $darkModeToggle = $('<button>')
       .attr('id', 'dark-mode-toggle')
-      .text($('body').hasClass('dark-mode') ? 'Vaihda vaaleaan tilaan' : 'Vaihda pimeään tilaan')
+      .text($('body').hasClass('dark-mode') ? 'Vaalea teema' : 'Tumma teema')
       .click(function() {
         $('body').toggleClass('dark-mode');
         const isDarkMode = $('body').hasClass('dark-mode');
         localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        $('.dark-mode-toggle').text(isDarkMode ? 'Vaihda vaaleaan tilaan' : 'Vaihda pimeään tilaan');
+        $('.dark-mode-toggle').text(isDarkMode ? 'Vaalea teema' : 'Tumma teema');
       });
-
+  
     var $progressContainer = $('<div>')
       .attr('class', 'quiz-progress text-center');
-
+  
     var $progressText = $('<span>')
       .text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`)
       .appendTo($progressContainer);
-
+  
     var $timer = $('<div>')
       .attr('class', 'quiz-timer')
       .text("Aika: 0s");
-
+  
     var timerInterval;
     var allTimers = [];
     var allProgressTexts = [];
-
+  
     var $highScoresButton = $('<button>')
       .attr('class', 'high-scores-button')
       .text("Ennätykset")
       .click(showHighScores);
-
+  
+    // Create a single indicators list and append it to the container
     var $indicators = $('<ol>')
       .attr('class', 'progress-circles')
       .appendTo($container);
-
+  
     var $title_slide = $("<div>")
       .attr("class", "item active")
       .appendTo($slides);
-
+  
     var $topControlsTitle = $('<div>')
       .attr('class', 'top-controls')
       .appendTo($title_slide);
-
+  
     var $topButtonRowTitle = $('<div>')
       .attr('class', 'top-button-row')
       .appendTo($topControlsTitle);
-
+  
+    // Only include the dark mode toggle on the title slide (Lopeta button removed)
     $darkModeToggle.clone(true).addClass('dark-mode-toggle').appendTo($topButtonRowTitle);
-
+  
     $('<h1>')
       .text(quiz_opts.title)
       .attr('class', 'quiz-title')
       .appendTo($title_slide);
-
+  
     var $start_button = $("<div>")
       .attr("class", "quiz-answers")
       .appendTo($title_slide);
-
+  
     $("<button>")
       .attr('class', 'quiz-button btn')
       .text("Aloita!")
@@ -433,33 +434,35 @@
 
     $highScoresButton.clone(true).appendTo($start_button);
 
+    // Add leaderboard container
     var $leaderboardContainer = $('<div>')
       .attr('class', 'leaderboard-container')
       .appendTo($title_slide);
     displayLeaderboard().then(html => {
       $leaderboardContainer.html(html);
     });
-
+  
+    // Populate the indicators
     $.each(questions, function(question_index, question) {
       $('<li>')
         .attr('class', question_index ? "" : "unanswered")
         .appendTo($indicators);
     });
-
+  
     $.each(questions, function(question_index, question) {
       var last_question = (question_index + 1 === state.total);
       var $item = $("<div>")
         .attr("class", "item")
         .appendTo($slides);
-
+  
       var $topControls = $('<div>')
         .attr('class', 'top-controls')
         .appendTo($item);
-
+  
       var $topButtonRow = $('<div>')
         .attr('class', 'top-button-row')
         .appendTo($topControls);
-
+  
       $endButton.clone().appendTo($topButtonRow).click(function() {
         var unansweredCount = state.total - state.answered;
         state.wrong += unansweredCount;
@@ -472,12 +475,12 @@
         clearInterval(timerInterval);
         showScoreAndCheckHighScore(state);
       });
-
+  
       $darkModeToggle.clone(true).addClass('dark-mode-toggle').appendTo($topButtonRow);
-
+  
       var $questionProgress = $progressContainer.clone().appendTo($item);
       allProgressTexts.push($questionProgress.find('span'));
-
+  
       if (question.image) {
         var $img_div = $('<div>')
           .attr('class', 'question-image')
@@ -487,62 +490,70 @@
           .attr("src", question.image)
           .appendTo($img_div);
       }
-
+  
       var $answers = $("<div>")
         .attr("class", "quiz-answers")
         .appendTo($item);
-
+  
       var $bottomControls = $('<div>')
         .attr('class', 'bottom-controls')
         .appendTo($item);
-
+  
       var $buttonRow = $('<div>')
         .attr('class', 'button-row')
         .appendTo($bottomControls);
-
+  
       $highScoresButton.clone(true).appendTo($buttonRow);
       var $questionTimer = $timer.clone().appendTo($buttonRow);
       allTimers.push($questionTimer);
-
-      var finalAnswers = question.answers.slice(); // Use the provided answers directly
-      shuffle(finalAnswers); // Shuffle the answers
-      var correctIndex = finalAnswers.indexOf(question.answers[0]); // Find the index of the correct answer after shuffling
-
+  
+      var correctAnswer = question.answers[0];
+      var otherAnswers = allAnswers.filter(a => a !== correctAnswer);
+      var randomIncorrect = [];
+      for (var i = 0; i < 4 && otherAnswers.length > 0; i++) {
+        var randomIdx = Math.floor(Math.random() * otherAnswers.length);
+        randomIncorrect.push(otherAnswers[randomIdx]);
+        otherAnswers.splice(randomIdx, 1);
+      }
+      var finalAnswers = [correctAnswer].concat(randomIncorrect);
+      shuffle(finalAnswers);
+      var correctIndex = finalAnswers.indexOf(correctAnswer);
+  
       $.each(finalAnswers, function(answer_index, answer) {
         var ans_btn = $("<button>")
           .attr('class', 'quiz-button btn')
           .html(answer)
           .appendTo($answers);
-
+  
         var correct = (answer_index === correctIndex);
         var opts = {
           title: correct ? "Oikein!" : "Väärin",
           text: correct 
             ? (question.correct.text ? question.correct.text : "Hienoa työtä!") 
-            : `Oikea vastaus oli "${question.answers[0]}".${question.correct.text ? " " + question.correct.text : ""}`,
+            : `Oikea vastaus oli "${correctAnswer}".${question.correct.text ? " " + question.correct.text : ""}`,
           icon: correct ? "success" : "error",
           confirmButtonText: last_question ? "Näytä tulokset" : "Seuraava kysymys",
           confirmButtonColor: $('body').hasClass('dark-mode') ? "#2B6B66" : "#2C7A7B",
           allowOutsideClick: false,
           allowEscapeKey: false
         };
-
+  
         ans_btn.on('click', function() {
           console.log("Answer button clicked:", answer, "Correct:", correct);
-
+  
           function next() {
             state.answered++;
             if (correct) state.correct++;
             else state.wrong++;
-
+  
             $indicators.find('li').eq(question_index)
               .removeClass('unanswered')
               .addClass(correct ? 'correct' : 'wrong');
-
+  
             allProgressTexts.forEach($pt => $pt.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`));
-
+  
             $quiz.carousel('next');
-
+  
             if (last_question) {
               $results_ratio.text(`Sait ${Math.round(100 * (state.correct / state.total))}% kysymyksistä oikein!`);
               $indicators.removeClass('show');
@@ -551,7 +562,7 @@
               showScoreAndCheckHighScore(state);
             }
           }
-
+  
           Swal.fire({
             title: opts.title,
             text: opts.text,
@@ -561,22 +572,9 @@
             allowOutsideClick: opts.allowOutsideClick,
             allowEscapeKey: opts.allowEscapeKey,
             background: $('body').hasClass('dark-mode') 
-              ? 'linear-gradient(to bottom, #2D3748, #1A202C)' 
-              : 'linear-gradient(to bottom, #F7E9C3, #FDF6E3)',
-            customClass: {
-              popup: correct ? 'swal-correct' : 'swal-wrong',
-              title: 'swal-title-custom',
-              htmlContainer: 'swal-content-custom',  // Updated to target htmlContainer (swal2-html-container)
-              confirmButton: 'swal-confirm-custom'
-            },
-            padding: '2rem',
-            backdrop: 'rgba(0, 0, 0, 0.4)', // Neutral backdrop
-            showClass: {
-              popup: 'animate__animated animate__zoomIn'
-            },
-            hideClass: {
-              popup: 'animate__animated animate__zoomOut'
-            }
+              ? 'linear-gradient(to bottom, #1A202C, #2D3748)' 
+              : 'linear-gradient(to bottom, #FDF6E3, #F7E9C3)',
+            color: $('body').hasClass('dark-mode') ? '#E2E8F0' : '#2D3748'
           }).then((result) => {
             if (result.isConfirmed) {
               next();
@@ -585,23 +583,23 @@
         });
       });
     });
-
+  
     var $results_slide = $("<div>")
       .attr("class", "item")
       .appendTo($slides);
-
+  
     var $results_title = $('<h1>')
       .attr('class', 'quiz-title')
       .appendTo($results_slide);
-
+  
     var $results_ratio = $('<div>')
       .attr('class', 'results-ratio')
       .appendTo($results_slide);
-
+  
     var $restart_button = $("<div>")
       .attr("class", "quiz-answers")
       .appendTo($results_slide);
-
+  
     $("<button>")
       .attr('class', 'quiz-button btn')
       .text("Yritä uudelleen?")
@@ -609,7 +607,7 @@
         location.reload();
       })
       .appendTo($restart_button);
-
+  
     $quiz.carousel({"interval": false});
   }
   
