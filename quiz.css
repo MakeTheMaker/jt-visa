@@ -217,6 +217,7 @@ body.dark-mode .quiz-progress {
   text-align: center;
   margin-top: 20px;
   z-index: 10;
+  padding-bottom: 30px; /* Increased padding to ensure space for progress-circles */
 }
 
 /* Button Row (Timer and High Scores Button) */
@@ -269,7 +270,7 @@ body.dark-mode .high-scores-button {
   display: none;
   text-align: center;
   position: absolute;
-  bottom: 15px;
+  bottom: 10px; /* Adjusted to ensure spacing below button-row */
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -541,11 +542,46 @@ body.dark-mode .high-score-row:hover {
 
   .quiz-button.btn {
     max-width: 100%;
-    font-size: 16px;
+    padding: 12px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Reduce font size from 18px to 14px */
   }
 
   .top-button-row, .button-row {
     padding: 0 15px;
+  }
+
+  .end-button {
+    padding: 8px 16px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Reduce font size from 16px to 14px */
+  }
+
+  .dark-mode-toggle {
+    padding: 8px 16px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Reduce font size from 16px to 14px */
+  }
+
+  .high-scores-button {
+    padding: 8px 16px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Reduce font size from 16px to 14px */
+  }
+
+  .quiz-progress span {
+    font-size: 14px; /* Reduce from 18px to 14px */
+  }
+
+  .bottom-controls {
+    margin-top: 10px; /* Reduce margin on smaller screens */
+    padding-bottom: 40px; /* Increased padding for smaller screens to ensure space for progress-circles */
+  }
+
+  .progress-circles {
+    bottom: 15px; /* Adjusted for smaller screens */
+  }
+
+  .progress-circles li {
+    width: 12px; /* Slightly smaller circles on mobile */
+    height: 12px;
+    margin: 0 4px;
   }
 }
 
@@ -644,80 +680,4 @@ body.dark-mode .leaderboard-table tbody tr:hover {
     padding: 10px 8px;
     font-size: 14px;
   }
-}
-
-/* Enhanced Popup Styles */
-.swal-correct {
-  border: 3px solid var(--progress-correct); /* Green border for correct (#38A169) */
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.swal-wrong {
-  border: 3px solid var(--progress-wrong); /* Red border for wrong (#E53E3E) */
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.swal-title-custom {
-  font-size: 32px !important; /* Reduced from 40px to 32px */
-  font-weight: 700;
-  color: var(--accent-color); /* Teal (#2B6B66) */
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px !important;
-}
-
-.swal-content-custom, .swal2-html-container, .swal2-popup .swal2-html-container {
-  font-size: 16px !important; /* Reduced from 20px to 16px for better fit */
-  line-height: 1.6; /* Improved readability */
-  color: #FFFFFF; /* White text for dark background */
-  padding: 15px 25px; /* Adjusted padding for better fit */
-  background: rgba(0, 0, 0, 0.9); /* Black background for dark theme */
-  border-radius: 10px; /* Rounded corners */
-  max-width: 90%; /* Reduced to prevent overflow */
-  margin: 0 auto; /* Center it */
-  overflow-wrap: break-word; /* Ensure long text wraps */
-}
-
-body.dark-mode .swal-content-custom, body.dark-mode .swal2-html-container, body.dark-mode .swal2-popup .swal2-html-container {
-  background: rgba(0, 0, 0, 0.9); /* Dark mode contrast (unchanged) */
-  color: #FFFFFF; /* White text for dark background */
-}
-
-.swal-confirm-custom {
-  background: linear-gradient(135deg, var(--accent-color), var(--button-hover)); /* Teal gradient (#2B6B66 to #1D4A47) */
-  color: #fff;
-  border-radius: 12px;
-  padding: 14px 28px;
-  font-size: 20px;
-  font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-}
-
-.swal-confirm-custom:hover {
-  background: linear-gradient(135deg, var(--button-hover), var(--accent-color)); /* Darker teal gradient */
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-}
-
-/* Dark mode adjustments */
-body.dark-mode .swal-correct {
-  border-color: var(--progress-correct); /* Green (#38A169) */
-}
-
-body.dark-mode .swal-wrong {
-  border-color: var(--progress-wrong); /* Red (#E53E3E) */
-}
-
-body.dark-mode .swal-title-custom {
-  color: var(--accent-color); /* Teal (#2B6B66) */
-}
-
-body.dark-mode .swal-content-custom, body.dark-mode .swal2-html-container, body.dark-mode .swal2-popup .swal2-html-container {
-  color: #FFFFFF; /* White text for dark background */
-}
-
-body.dark-mode .swal-confirm-custom {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
