@@ -217,7 +217,7 @@ body.dark-mode .quiz-progress {
   text-align: center;
   margin-top: 20px;
   z-index: 10;
-  padding-bottom: 10px; /* Add padding to ensure space for elements */
+  padding-bottom: 30px; /* Increased padding to ensure space for progress-circles */
 }
 
 /* Button Row (Timer and High Scores Button) */
@@ -265,19 +265,14 @@ body.dark-mode .high-scores-button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Progress Circles Container */
-.progress-circles-container {
-  position: relative;
-  text-align: center;
-  margin-top: 10px;
-  z-index: 10;
-}
-
 /* Progress Circles */
 .progress-circles {
   display: none;
   text-align: center;
-  position: relative; /* Change to relative positioning */
+  position: absolute;
+  bottom: 10px; /* Adjusted to ensure spacing below button-row */
+  left: 0;
+  right: 0;
   margin: 0 auto;
   z-index: 10;
 }
@@ -547,20 +542,40 @@ body.dark-mode .high-score-row:hover {
 
   .quiz-button.btn {
     max-width: 100%;
-    font-size: 16px;
+    padding: 12px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Reduce font size from 18px to 14px */
   }
 
   .top-button-row, .button-row {
     padding: 0 15px;
   }
 
-  .bottom-controls {
-    margin-top: 10px; /* Reduce margin on smaller screens */
-    padding-bottom: 5px; /* Adjust padding */
+  .end-button {
+    padding: 8px 16px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Reduce font size from 16px to 14px */
   }
 
-  .progress-circles-container {
-    margin-top: 5px; /* Reduce margin on smaller screens */
+  .dark-mode-toggle {
+    padding: 8px 16px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Reduce font size from 16px to 14px */
+  }
+
+  .high-scores-button {
+    padding: 8px 16px; /* Reduce padding for smaller screens */
+    font-size: 14px; /* Reduce font size from 16px to 14px */
+  }
+
+  .quiz-progress span {
+    font-size: 14px; /* Reduce from 18px to 14px */
+  }
+
+  .bottom-controls {
+    margin-top: 10px; /* Reduce margin on smaller screens */
+    padding-bottom: 40px; /* Increased padding for smaller screens to ensure space for progress-circles */
+  }
+
+  .progress-circles {
+    bottom: 15px; /* Adjusted for smaller screens */
   }
 
   .progress-circles li {
