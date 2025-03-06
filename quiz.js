@@ -385,9 +385,9 @@
       .text("Ennätykset")
       .click(showHighScores);
   
-    var $indicators = $('<ol>')
-      .attr('class', 'progress-circles')
-      .appendTo($container);
+    // Create a single master indicators list to track state
+    var $masterIndicators = $('<ol>')
+      .attr('class', 'progress-circles');
   
     var $title_slide = $("<div>")
       .attr("class", "item active")
@@ -401,19 +401,7 @@
       .attr('class', 'top-button-row')
       .appendTo($topControlsTitle);
   
-    $endButton.clone().appendTo($topButtonRowTitle).click(function() {
-      var unansweredCount = state.total - state.answered;
-      state.wrong += unansweredCount;
-      state.answered = state.total;
-      allProgressTexts.forEach($pt => $pt.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`));
-      $indicators.find('li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
-      $quiz.carousel(state.total + 1);
-      $indicators.removeClass('show');
-      $progressContainer.addClass('hidden');
-      clearInterval(timerInterval);
-      showScoreAndCheckHighScore(state);
-    });
-  
+    // Only include the dark mode toggle on the title slide (Lopeta button removed)
     $darkModeToggle.clone(true).addClass('dark-mode-toggle').appendTo($topButtonRowTitle);
   
     $('<h1>')
@@ -430,7 +418,7 @@
       .text("Aloita!")
       .click(function() {
         $quiz.carousel('next');
-        $indicators.addClass('show');
+        $('.progress-circles').addClass('show'); // Show all progress circles on question slides
         if (!timerInterval) {
           timerInterval = setInterval(function() {
             state.timeElapsed++;
@@ -453,10 +441,11 @@
       $leaderboardContainer.html(html);
     });
   
+    // Populate the master indicators
     $.each(questions, function(question_index, question) {
       $('<li>')
         .attr('class', question_index ? "" : "unanswered")
-        .appendTo($indicators);
+        .appendTo($masterIndicators);
     });
   
     $.each(questions, function(question_index, question) {
@@ -478,9 +467,9 @@
         state.wrong += unansweredCount;
         state.answered = state.total;
         allProgressTexts.forEach($pt => $pt.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`));
-        $indicators.find('li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
+        $('.progress-circles li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
         $quiz.carousel(state.total + 1);
-        $indicators.removeClass('show');
+        $('.progress-circles').removeClass('show');
         $progressContainer.addClass('hidden');
         clearInterval(timerInterval);
         showScoreAndCheckHighScore(state);
@@ -516,6 +505,16 @@
       $highScoresButton.clone(true).appendTo($buttonRow);
       var $questionTimer = $timer.clone().appendTo($buttonRow);
       allTimers.push($questionTimer);
+  
+      // Create a new container for progress-circles and append it after bottom-controls
+      var $progressCirclesContainer = $('<div>')
+        .attr('class', 'progress-circles-container')
+        .appendTo($item);
+  
+      // Clone the master indicators for this slide
+      var $indicators = $masterIndicators.clone(true)
+        .attr('class', 'progress-circles')
+        .appendTo($progressCirclesContainer);
   
       var correctAnswer = question.answers[0];
       var otherAnswers = allAnswers.filter(a => a !== correctAnswer);
@@ -556,7 +555,7 @@
             if (correct) state.correct++;
             else state.wrong++;
   
-            $indicators.find('li').eq(question_index)
+            $('.progress-circles li').eq(question_index)
               .removeClass('unanswered')
               .addClass(correct ? 'correct' : 'wrong');
   
@@ -566,7 +565,7 @@
   
             if (last_question) {
               $results_ratio.text(`Sait ${Math.round(100 * (state.correct / state.total))}% kysymyksistä oikein!`);
-              $indicators.removeClass('show');
+              $('.progress-circles').removeClass('show');
               $progressContainer.addClass('hidden');
               clearInterval(timerInterval);
               showScoreAndCheckHighScore(state);
