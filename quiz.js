@@ -385,10 +385,9 @@
       .text("Ennätykset")
       .click(showHighScores);
   
-    // Create a single indicators list and append it to the container
-    var $indicators = $('<ol>')
-      .attr('class', 'progress-circles')
-      .appendTo($container);
+    // Create a single progress-circles instance to track state
+    var $progressCircles = $('<ol>')
+      .attr('class', 'progress-circles');
   
     var $title_slide = $("<div>")
       .attr("class", "item active")
@@ -419,7 +418,7 @@
       .text("Aloita!")
       .click(function() {
         $quiz.carousel('next');
-        $indicators.addClass('show');
+        $progressCircles.addClass('show'); // Show progress circles on question slides
         if (!timerInterval) {
           timerInterval = setInterval(function() {
             state.timeElapsed++;
@@ -442,11 +441,11 @@
       $leaderboardContainer.html(html);
     });
   
-    // Populate the indicators
+    // Populate the progress-circles with unanswered state
     $.each(questions, function(question_index, question) {
       $('<li>')
-        .attr('class', question_index ? "" : "unanswered")
-        .appendTo($indicators);
+        .addClass('unanswered') // Ensure all li elements start with 'unanswered' class
+        .appendTo($progressCircles);
     });
   
     $.each(questions, function(question_index, question) {
@@ -468,9 +467,12 @@
         state.wrong += unansweredCount;
         state.answered = state.total;
         allProgressTexts.forEach($pt => $pt.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`));
-        $indicators.find('li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
+        
+        // Update progress-circles for unanswered questions
+        $progressCircles.find('li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
+        
         $quiz.carousel(state.total + 1);
-        $indicators.removeClass('show');
+        $progressCircles.removeClass('show');
         $progressContainer.addClass('hidden');
         clearInterval(timerInterval);
         showScoreAndCheckHighScore(state);
@@ -506,6 +508,11 @@
       $highScoresButton.clone(true).appendTo($buttonRow);
       var $questionTimer = $timer.clone().appendTo($buttonRow);
       allTimers.push($questionTimer);
+  
+      // Create a placeholder for progress-circles
+      var $progressCirclesPlaceholder = $('<div>')
+        .attr('class', 'progress-circles-placeholder')
+        .appendTo($item);
   
       var correctAnswer = question.answers[0];
       var otherAnswers = allAnswers.filter(a => a !== correctAnswer);
@@ -546,7 +553,8 @@
             if (correct) state.correct++;
             else state.wrong++;
   
-            $indicators.find('li').eq(question_index)
+            // Update the progress-circles
+            $progressCircles.find('li').eq(question_index)
               .removeClass('unanswered')
               .addClass(correct ? 'correct' : 'wrong');
   
@@ -556,7 +564,7 @@
   
             if (last_question) {
               $results_ratio.text(`Sait ${Math.round(100 * (state.correct / state.total))}% kysymyksistä oikein!`);
-              $indicators.removeClass('show');
+              $progressCircles.removeClass('show');
               $progressContainer.addClass('hidden');
               clearInterval(timerInterval);
               showScoreAndCheckHighScore(state);
@@ -607,6 +615,17 @@
         location.reload();
       })
       .appendTo($restart_button);
+  
+    // Move progress-circles to the active slide on slide change
+    $quiz.on('slide.bs.carousel', function(e) {
+      var $nextSlide = $(e.relatedTarget);
+      // Only append to question slides (not title or results slide)
+      if ($nextSlide.find('.progress-circles-placeholder').length) {
+        $progressCircles.appendTo($nextSlide.find('.progress-circles-placeholder'));
+      } else {
+        $progressCircles.removeClass('show');
+      }
+    });
   
     $quiz.carousel({"interval": false});
   }
