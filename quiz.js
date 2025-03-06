@@ -328,7 +328,6 @@
     var questions = quiz_opts.questions;
     shuffle(questions);
   
-    var allAnswers = Array.from(new Set(questions.map(q => q.answers[0])));
     var state = {
       correct: 0,
       wrong: 0,
@@ -514,17 +513,11 @@
         .attr('class', 'progress-circles-placeholder')
         .appendTo($item);
   
-      var correctAnswer = question.answers[0];
-      var otherAnswers = allAnswers.filter(a => a !== correctAnswer);
-      var randomIncorrect = [];
-      for (var i = 0; i < 4 && otherAnswers.length > 0; i++) {
-        var randomIdx = Math.floor(Math.random() * otherAnswers.length);
-        randomIncorrect.push(otherAnswers[randomIdx]);
-        otherAnswers.splice(randomIdx, 1);
-      }
-      var finalAnswers = [correctAnswer].concat(randomIncorrect);
-      shuffle(finalAnswers);
-      var correctIndex = finalAnswers.indexOf(correctAnswer);
+      // Use only this question's answers and shuffle them
+      var finalAnswers = question.answers.slice(); // Create a copy of the answers array
+      shuffle(finalAnswers); // Shuffle the answers for this question
+      var correctAnswer = question.answers[0]; // The correct answer is always the first one in the original array
+      var correctIndex = finalAnswers.indexOf(correctAnswer); // Find its index after shuffling
   
       $.each(finalAnswers, function(answer_index, answer) {
         var ans_btn = $("<button>")
