@@ -217,6 +217,7 @@ body.dark-mode .quiz-progress {
   text-align: center;
   margin-top: 20px;
   z-index: 10;
+  padding-bottom: 10px; /* Add padding to ensure space for elements */
 }
 
 /* Button Row (Timer and High Scores Button) */
@@ -264,14 +265,19 @@ body.dark-mode .high-scores-button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* Progress Circles Container */
+.progress-circles-container {
+  position: relative;
+  text-align: center;
+  margin-top: 10px;
+  z-index: 10;
+}
+
 /* Progress Circles */
 .progress-circles {
   display: none;
   text-align: center;
-  position: absolute;
-  bottom: 15px;
-  left: 0;
-  right: 0;
+  position: relative; /* Change to relative positioning */
   margin: 0 auto;
   z-index: 10;
 }
@@ -546,6 +552,21 @@ body.dark-mode .high-score-row:hover {
 
   .top-button-row, .button-row {
     padding: 0 15px;
+  }
+
+  .bottom-controls {
+    margin-top: 10px; /* Reduce margin on smaller screens */
+    padding-bottom: 5px; /* Adjust padding */
+  }
+
+  .progress-circles-container {
+    margin-top: 5px; /* Reduce margin on smaller screens */
+  }
+
+  .progress-circles li {
+    width: 12px; /* Slightly smaller circles on mobile */
+    height: 12px;
+    margin: 0 4px;
   }
 }
 
