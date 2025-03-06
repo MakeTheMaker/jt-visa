@@ -357,12 +357,12 @@
   
     var $darkModeToggle = $('<button>')
       .attr('id', 'dark-mode-toggle')
-      .text($('body').hasClass('dark-mode') ? 'Vaihda vaaleaan tilaan' : 'Vaihda pimeään tilaan')
+      .text($('body').hasClass('dark-mode') ? 'Vaalea teema' : 'Tumma teema')
       .click(function() {
         $('body').toggleClass('dark-mode');
         const isDarkMode = $('body').hasClass('dark-mode');
         localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        $('.dark-mode-toggle').text(isDarkMode ? 'Vaihda vaaleaan tilaan' : 'Vaihda pimeään tilaan');
+        $('.dark-mode-toggle').text(isDarkMode ? 'Vaalea teema' : 'Tumma teema');
       });
   
     var $progressContainer = $('<div>')
@@ -385,9 +385,10 @@
       .text("Ennätykset")
       .click(showHighScores);
   
-    // Create a single master indicators list to track state
-    var $masterIndicators = $('<ol>')
-      .attr('class', 'progress-circles');
+    // Create a single indicators list and append it to the container
+    var $indicators = $('<ol>')
+      .attr('class', 'progress-circles')
+      .appendTo($container);
   
     var $title_slide = $("<div>")
       .attr("class", "item active")
@@ -418,7 +419,7 @@
       .text("Aloita!")
       .click(function() {
         $quiz.carousel('next');
-        $('.progress-circles').addClass('show'); // Show all progress circles on question slides
+        $indicators.addClass('show');
         if (!timerInterval) {
           timerInterval = setInterval(function() {
             state.timeElapsed++;
@@ -441,11 +442,11 @@
       $leaderboardContainer.html(html);
     });
   
-    // Populate the master indicators
+    // Populate the indicators
     $.each(questions, function(question_index, question) {
       $('<li>')
         .attr('class', question_index ? "" : "unanswered")
-        .appendTo($masterIndicators);
+        .appendTo($indicators);
     });
   
     $.each(questions, function(question_index, question) {
@@ -467,9 +468,9 @@
         state.wrong += unansweredCount;
         state.answered = state.total;
         allProgressTexts.forEach($pt => $pt.text(`Kysymyksiä jäljellä: ${state.total - state.answered}, Oikein: ${state.correct}, Väärin: ${state.wrong}`));
-        $('.progress-circles li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
+        $indicators.find('li').slice(state.answered - unansweredCount).removeClass('unanswered').addClass('wrong');
         $quiz.carousel(state.total + 1);
-        $('.progress-circles').removeClass('show');
+        $indicators.removeClass('show');
         $progressContainer.addClass('hidden');
         clearInterval(timerInterval);
         showScoreAndCheckHighScore(state);
@@ -505,16 +506,6 @@
       $highScoresButton.clone(true).appendTo($buttonRow);
       var $questionTimer = $timer.clone().appendTo($buttonRow);
       allTimers.push($questionTimer);
-  
-      // Create a new container for progress-circles and append it after bottom-controls
-      var $progressCirclesContainer = $('<div>')
-        .attr('class', 'progress-circles-container')
-        .appendTo($item);
-  
-      // Clone the master indicators for this slide
-      var $indicators = $masterIndicators.clone(true)
-        .attr('class', 'progress-circles')
-        .appendTo($progressCirclesContainer);
   
       var correctAnswer = question.answers[0];
       var otherAnswers = allAnswers.filter(a => a !== correctAnswer);
@@ -555,7 +546,7 @@
             if (correct) state.correct++;
             else state.wrong++;
   
-            $('.progress-circles li').eq(question_index)
+            $indicators.find('li').eq(question_index)
               .removeClass('unanswered')
               .addClass(correct ? 'correct' : 'wrong');
   
@@ -565,7 +556,7 @@
   
             if (last_question) {
               $results_ratio.text(`Sait ${Math.round(100 * (state.correct / state.total))}% kysymyksistä oikein!`);
-              $('.progress-circles').removeClass('show');
+              $indicators.removeClass('show');
               $progressContainer.addClass('hidden');
               clearInterval(timerInterval);
               showScoreAndCheckHighScore(state);
